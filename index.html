@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock Suggestions and Details</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .search-container {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    .suggestions {
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      max-height: 150px;
+      overflow-y: auto;
+      position: absolute;
+      background-color: #fff;
+      z-index: 1000;
+      width: calc(100% - 20px);
+      box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .suggestion-item {
+      padding: 10px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+      transition: background-color 0.2s;
+    }
+
+    .suggestion-item:hover {
+      background-color: #f0f0f0;
+    }
+
+    .suggestion-item:hover {
+      background-color: #f0f0f0;
+    }
+
+    .details-box {
+      margin-top: 20px;
+      padding: 20px;
+      border: 1px solid #ddd;
+      width: 80%;
+      max-width: 400px;
+      background-color: #ffffff;
+      border-radius: 5px;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    #enterhere {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.1);
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    #enterhere:focus {
+      border-color: #007bff;
+    }
+
+    @media only screen and (max-width: 768px) {
+      .details-box {
+        width: 100%;
+      }
+
+      .suggestions {
+        width: 100%;
+      }
+
+      #enterhere {
+        width: calc(100% - 20px);
+      }
+    }
+
+    .details-box p {
+      margin: 5px 0;
+      font-size: 16px;
+    }
+
+    .details-box p strong {
+      color: #007bff;
+    }
+
+    .details-box h3 {
+      margin-bottom: 15px;
+      color: #007bff;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Stock Suggestions and Details </h1>
+  <div style="position: relative;">
+    <label>Enter Stock Name Here</label><br>
+    <div style="height: 10px;"></div>
+    <input id="enterhere" type="text" placeholder="Enter stock keyword" onkeyup="getStockSuggestions()"
+      style="width: 300px; padding: 8px;">
+    <div id="suggestions" class="suggestions" style="display: none;"></div>
+  </div>
+
+  <div id="stock-details" class="details-box" style="display: none;">
+    <h3>Stock Details</h3>
+    <div id="details-content"></div>
+  </div>
+
+  <script>
+    async function getStockSuggestions() {
+      const input = document.getElementById("enterhere").value.trim();
+      const detailsDiv = document.getElementById('stock-details');
+      const contentDiv = document.getElementById('details-content');
+      contentDiv.innerHTML = ``;
+      detailsDiv.style.display = 'none';
+
+      if (input.length === 0) {
+        document.getElementById('suggestions').style.display = 'none';
+        return;
+      }
+
+      const url = `https://www.moneycontrol.com/mccode/common/autosuggestion_solr.php?classic=true&query=${input}&type=1&format=json&callback=suggest1`;
+      let cookies = `MC_PPID_LOGIC=normaluser7663361659878581mcids; _cb=YVgZEBWbglJBJVX14; bm_mi=9A87299059CCC339DBBC4B4FF16EB82C~YAAQzOvfrRT8lmeSAQAAS2HcbBlqMXlTRkSwkbC+sqj2qxLssrkZdU93+hr2zymtdh1sb9qOROEHh8JsMpHWk8T1Sy9deCip/atOFVQPJp4IigpprGRxFl87TX4vuGHhMB/unpvVuJdhbfRXbJaPDukur1Bq++QIjns8trAZt1MHPxdtQmFScpU8qDTHGaKLgtk+BuaGTky85lvVSYpfi/tuR8N23+duisMFtjvEUlZRAtEOzR7H15Cawdlb2ix4rDJ5EwsQBuoVSiXbygNcQJlaYDobWC/6mzmWFTfq7SY43zdGxr7apDFrY6vSlpu0EG6BBdkpDy/Am0m/uyN4AIlEzdrgnyCJ+PtA3qMVfEov~1; _abck=4D5DE213B0D972EE01BF78E679FCA212~0~YAAQzOvfrSH8lmeSAQAAHWPcbAxVosdyneSLRG2iuZHMPdEmHGLYxNtvkI3or+z8pMP3i6xHfs/8TVhsRKaL+Gf1nqS4u4jA+TGR6EgGAjno6G+1or0cziW/84OzY9F2Lsg5tOjFH7KzP+d0UN8Q6rFJxcDP5FZWsZKjI2upB1LCrcml+AeOvfHw/Ek3dzDu96rdtvva1O3XcgYeic4wh0wIapIylQlhCbsZOovyBxQpI1SzPyTu6iph55pZ1aeMqmZsmzRE0+Hh1yKRgKmUBfB2YPiY2b9t8Pbydw85r+VZO3LhEqlwLgdy2sLouHHmmN7GHvzYYjid0xg9YMZufFvlPJaLDIC1ehZuNxCBqbXFCJBEnpRMIy9WRyJtWTLBjXu/XRbS6u5yg6t+1bA8kuT/3rvREXjFvgY6IUIsy+jGn0Da+jTX+W2z1sMEOu00rHBVXHpsLCtOuKEvcc/s~-1~-1~1728406835; ak_bmsc=B3658884E19F8B59D1FBB1D00F6BFE10~000000000000000000000000000000~YAAQzOvfrVr9lmeSAQAAL4TcbBlef9gvHQ4EZHdC9g82IfvSvqIirZqckbH2JvJ4sK7g8O5N7e/4Y/CLbLYH+OhpKrBvPEOXDpofrnj3Yx3yfuM/AYwR2KEd/FB2RJWvK1raVlmZeuxRjtNrWqiuC30HXJDo6UkJl8d54mtqzG70Grob0gyn6lWTmEdUwlBZ2WBV44g3eRt9qky3EAKNb7QikL5/yZQEGRPtNG8pm8qe+UzN37sX3uP78KaBUsfGI+4rfZTOyYKC+Z/BTqWdFGk+M2Uyn4yyAc12yuc91LhnE7tdLElqOdhwp+9t0qkm6K2aeGYQwnCo5rnTKxHNEBS3aksUnITjBOn7WP0uDjAGuuZM/X01R8e0VBYTAlaysdtVcDxu1qqO/pIrNEtNSMjLKBlWHStPdPTRk1aD8WPGf34tzVAgPbvMN+z6diuAM6OuyKIrXanm+lX9jYJoIO1jDzNVEE500DSRFg+1wAT+Ee0d7JFT5o9qw/7pwOZb9fAOKdb0Zg==; MC_INTERSTITIAL_DFP_AD_LOGIC_20241008={"0":"https://www.moneycontrol.com/"}; A18ID=1728403246213.85904; _gid=GA1.2.1954932258.1728403247; _gcl_au=1.1.224426383.1728403250; _sharedID=1a3332e0-1b51-466c-b1eb-cf6109b03455; _sharedID_cst=zix7LPQsHA%3D%3D; trc_cookie_storage=taboola%2520global%253Auser-id%3D7717d5d3-4ebd-414c-b3f5-d20ad638252c-tuctda14ff3; _cb_svref=https%3A%2F%2Fwww.moneycontrol.com%2Fpromo%2Fmc_interstitial_dfp.php%3Fsize%3D1280x540; WZRK_G=7a879340e2e14434ac284745ec918af0; nousersess=g065mosfk5clya2o; dtCookie=v_4_srv_7_sn_1E10F6B6478CE3E520AF693F82E081FC_perc_100000_ol_0_mul_1_app-3A15ca68b27f59163f_1; _io_ht_r=1; __io_d=1_3591142301; __io_lv=1728403534595; __io=b2f6c319a.aa5032510_1728403534597; __io_session_id=53072c974.b6a15a9fe_1728403534599; __io_unique_43938=8; __io_visit_43938=1; __io_nav_state43938=%7B%22current%22%3A%22%2Fstocks%2Fcptmarket%2Fcompsearchnew.php%22%2C%22currentDomain%22%3A%22www.moneycontrol.com%22%2C%22previous%22%3A%22%2Fstocks%2Fcptmarket%2Fcompsearchnew.php%22%2C%22previousDomain%22%3A%22www.moneycontrol.com%22%7D; bm_sz=C5CD024CAA43FFD0E019BFA09521E9F7~YAAQNdcLF7pn91CSAQAA+nvhbBlU76taINO3cQXKLnG5YCBD79dczb4aqXHkKslX6xPUaXwZomNnqqSPJIcOuu0rhY8FNBvrIg5d/ShihENVc9gEemYJ2N+RngF/mlCbpYQFGPgoYfj3SANfP5fBI9MqTvwIA2okvlbykNQA4LmHJ6ssK6HGuWjkcPfaN1LWm3c6hZWF4rRqpRNWDtjr1kB298s64OoNQWsv6gul5PRx1/zeB52OD/pQuGN7sH+pAsTxLh3bokpMawxXsZm+xOEtS8YLpkIfbFXRtxxHF4kq1P9xvFT08GpDHaVW+LylVVQ5kL3aq5Vap1V7AdN9dwugNMHKod/RGTUhsS7OBYGZRnZCUQtwFFZrR/x+v8M0WFiZI1mRjuCqZ2yf9zDKx65/fYtd3YonD6aeouJ/t6SF+kTsoOgmwSUqJEdbVgeECqN7jkg2Vk7djXiEWSqY~3293748~4273208; _ga=GA1.1.1208663303.1725479970; _ga_4S48PBY299=GS1.1.1728403253.2.1.1728403569.23.0.0; _ga_M7E3P87KRC=GS1.1.1728403249.1.1.1728403570.22.0.1852524673; stocks=|Infosys_IT~1%7CTCS_TCS%7E1; WZRK_S_86Z-5ZR-RK6Z=%7B%22p%22%3A5%2C%22s%22%3A1728403254%2C%22t%22%3A1728403571%7D; _chartbeat2=.1725479970267.1728403571619.0000000000000001.DYPWKHBWfR-aBpiC1CClLYI8t0URp.5; _gat=1; bm_sv=D1E329DEA6FABF2C7B4654E19F90130B~YAAQP9cLF7fyFTKSAQAAdvrjbBmE+34LKVFpe4RUAUBZ022eUNFB0Y57noyKKaGuNBIqCmc27KCu4SezCyJ1WDDePzjTkwYGjz7kyltZbNrmsg1pwXtEi8HYa6ylJ1qXsvSCotUkY6/QcCjYlzJonBVznZkIiex3K1YJ44EwYWqDnW8Nn7ET6i8m/BVDzVpbdNr4I+EfLGUJvKpwi3/q5LkqWWBpBZQs+3GVQfrlbeoDHwz9kpkZfb/Cx5d8KIb6DHNL2Wf2LA==~1`
+
+      const options = {
+        method: 'GET',
+        headers: {
+          'accept': 'text/javascript, application/javascript, application/ecmascript, application/x-ecmascript, */*; q=0.01',
+          'accept-language': 'en-US,en;q=0.9',
+          'referer': 'https://www.moneycontrol.com/',
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
+          'x-requested-with': 'XMLHttpRequest',
+          'cookie': cookies,
+        },
+      };
+
+      try {
+        const response = await fetch(url, options);
+        const text = await response.text();
+        const jsonData = text.replace(/^suggest1\((.*)\)$/, '$1');
+        const data = JSON.parse(jsonData);
+        displaySuggestions(data);
+      } catch (error) {
+        console.error('Error fetching stock suggestions:', error);
+      }
+    }
+
+    function displaySuggestions(data) {
+      const suggestionsDiv = document.getElementById('suggestions');
+      suggestionsDiv.innerHTML = '';
+
+      if (data && data.length > 0) {
+        data.forEach((item) => {
+          if (item.stock_name && item.sc_id) {
+            const suggestionItem = document.createElement('div');
+            suggestionItem.className = 'suggestion-item';
+            suggestionItem.textContent = item.stock_name;
+            suggestionItem.setAttribute('data-sc-id', item.sc_id);
+
+            // Handle the click to fetch and display stock details
+            suggestionItem.onclick = (event) => {
+              document.getElementById('enterhere').value = item.stock_name;
+              const scId = event.target.getAttribute('data-sc-id');
+              fetchStockDetails(scId);
+              suggestionsDiv.style.display = 'none';
+            };
+
+            suggestionsDiv.appendChild(suggestionItem);
+          }
+        });
+        suggestionsDiv.style.display = 'block';
+      } else {
+        suggestionsDiv.style.display = 'none';
+      }
+    }
+
+    // Fetch stock details based on the sc_id
+    async function fetchStockDetails(scId) {
+      const detailsUrl = `https://api.moneycontrol.com/mcapi/v1/stock/get-stock-price?scIdList=${scId}%2CIT%2CHCL02%2CW%2CLI09&scId=${scId}`;
+
+      let cookies = `MC_PPID_LOGIC=normaluser7663361659878581mcids; _cb=YVgZEBWbglJBJVX14; bm_mi=9A87299059CCC339DBBC4B4FF16EB82C~YAAQzOvfrRT8lmeSAQAAS2HcbBlqMXlTRkSwkbC+sqj2qxLssrkZdU93+hr2zymtdh1sb9qOROEHh8JsMpHWk8T1Sy9deCip/atOFVQPJp4IigpprGRxFl87TX4vuGHhMB/unpvVuJdhbfRXbJaPDukur1Bq++QIjns8trAZt1MHPxdtQmFScpU8qDTHGaKLgtk+BuaGTky85lvVSYpfi/tuR8N23+duisMFtjvEUlZRAtEOzR7H15Cawdlb2ix4rDJ5EwsQBuoVSiXbygNcQJlaYDobWC/6mzmWFTfq7SY43zdGxr7apDFrY6vSlpu0EG6BBdkpDy/Am0m/uyN4AIlEzdrgnyCJ+PtA3qMVfEov~1; _abck=4D5DE213B0D972EE01BF78E679FCA212~0~YAAQzOvfrSH8lmeSAQAAHWPcbAxVosdyneSLRG2iuZHMPdEmHGLYxNtvkI3or+z8pMP3i6xHfs/8TVhsRKaL+Gf1nqS4u4jA+TGR6EgGAjno6G+1or0cziW/84OzY9F2Lsg5tOjFH7KzP+d0UN8Q6rFJxcDP5FZWsZKjI2upB1LCrcml+AeOvfHw/Ek3dzDu96rdtvva1O3XcgYeic4wh0wIapIylQlhCbsZOovyBxQpI1SzPyTu6iph55pZ1aeMqmZsmzRE0+Hh1yKRgKmUBfB2YPiY2b9t8Pbydw85r+VZO3LhEqlwLgdy2sLouHHmmN7GHvzYYjid0xg9YMZufFvlPJaLDIC1ehZuNxCBqbXFCJBEnpRMIy9WRyJtWTLBjXu/XRbS6u5yg6t+1bA8kuT/3rvREXjFvgY6IUIsy+jGn0Da+jTX+W2z1sMEOu00rHBVXHpsLCtOuKEvcc/s~-1~-1~1728406835; ak_bmsc=B3658884E19F8B59D1FBB1D00F6BFE10~000000000000000000000000000000~YAAQzOvfrVr9lmeSAQAAL4TcbBlef9gvHQ4EZHdC9g82IfvSvqIirZqckbH2JvJ4sK7g8O5N7e/4Y/CLbLYH+OhpKrBvPEOXDpofrnj3Yx3yfuM/AYwR2KEd/FB2RJWvK1raVlmZeuxRjtNrWqiuC30HXJDo6UkJl8d54mtqzG70Grob0gyn6lWTmEdUwlBZ2WBV44g3eRt9qky3EAKNb7QikL5/yZQEGRPtNG8pm8qe+UzN37sX3uP78KaBUsfGI+4rfZTOyYKC+Z/BTqWdFGk+M2Uyn4yyAc12yuc91LhnE7tdLElqOdhwp+9t0qkm6K2aeGYQwnCo5rnTKxHNEBS3aksUnITjBOn7WP0uDjAGuuZM/X01R8e0VBYTAlaysdtVcDxu1qqO/pIrNEtNSMjLKBlWHStPdPTRk1aD8WPGf34tzVAgPbvMN+z6diuAM6OuyKIrXanm+lX9jYJoIO1jDzNVEE500DSRFg+1wAT+Ee0d7JFT5o9qw/7pwOZb9fAOKdb0Zg==; MC_INTERSTITIAL_DFP_AD_LOGIC_20241008={"0":"https://www.moneycontrol.com/"}; A18ID=1728403246213.85904; _gid=GA1.2.1954932258.1728403247; _gcl_au=1.1.224426383.1728403250; _sharedID=1a3332e0-1b51-466c-b1eb-cf6109b03455; _sharedID_cst=zix7LPQsHA%3D%3D; trc_cookie_storage=taboola%2520global%253Auser-id%3D7717d5d3-4ebd-414c-b3f5-d20ad638252c-tuctda14ff3; _cb_svref=https%3A%2F%2Fwww.moneycontrol.com%2Fpromo%2Fmc_interstitial_dfp.php%3Fsize%3D1280x540; WZRK_G=7a879340e2e14434ac284745ec918af0; nousersess=g065mosfk5clya2o; dtCookie=v_4_srv_7_sn_1E10F6B6478CE3E520AF693F82E081FC_perc_100000_ol_0_mul_1_app-3A15ca68b27f59163f_1; _io_ht_r=1; __io_d=1_3591142301; __io_lv=1728403534595; __io=b2f6c319a.aa5032510_1728403534597; __io_session_id=53072c974.b6a15a9fe_1728403534599; __io_unique_43938=8; __io_visit_43938=1; __io_nav_state43938=%7B%22current%22%3A%22%2Fstocks%2Fcptmarket%2Fcompsearchnew.php%22%2C%22currentDomain%22%3A%22www.moneycontrol.com%22%2C%22previous%22%3A%22%2Fstocks%2Fcptmarket%2Fcompsearchnew.php%22%2C%22previousDomain%22%3A%22www.moneycontrol.com%22%7D; bm_sz=C5CD024CAA43FFD0E019BFA09521E9F7~YAAQNdcLF7pn91CSAQAA+nvhbBlU76taINO3cQXKLnG5YCBD79dczb4aqXHkKslX6xPUaXwZomNnqqSPJIcOuu0rhY8FNBvrIg5d/ShihENVc9gEemYJ2N+RngF/mlCbpYQFGPgoYfj3SANfP5fBI9MqTvwIA2okvlbykNQA4LmHJ6ssK6HGuWjkcPfaN1LWm3c6hZWF4rRqpRNWDtjr1kB298s64OoNQWsv6gul5PRx1/zeB52OD/pQuGN7sH+pAsTxLh3bokpMawxXsZm+xOEtS8YLpkIfbFXRtxxHF4kq1P9xvFT08GpDHaVW+LylVVQ5kL3aq5Vap1V7AdN9dwugNMHKod/RGTUhsS7OBYGZRnZCUQtwFFZrR/x+v8M0WFiZI1mRjuCqZ2yf9zDKx65/fYtd3YonD6aeouJ/t6SF+kTsoOgmwSUqJEdbVgeECqN7jkg2Vk7djXiEWSqY~3293748~4273208; _ga=GA1.1.1208663303.1725479970; _ga_4S48PBY299=GS1.1.1728403253.2.1.1728403569.23.0.0; _ga_M7E3P87KRC=GS1.1.1728403249.1.1.1728403570.22.0.1852524673; stocks=|Infosys_IT~1%7CTCS_TCS%7E1; WZRK_S_86Z-5ZR-RK6Z=%7B%22p%22%3A5%2C%22s%22%3A1728403254%2C%22t%22%3A1728403571%7D; _chartbeat2=.1725479970267.1728403571619.0000000000000001.DYPWKHBWfR-aBpiC1CClLYI8t0URp.5; _gat=1; bm_sv=D1E329DEA6FABF2C7B4654E19F90130B~YAAQP9cLF7fyFTKSAQAAdvrjbBmE+34LKVFpe4RUAUBZ022eUNFB0Y57noyKKaGuNBIqCmc27KCu4SezCyJ1WDDePzjTkwYGjz7kyltZbNrmsg1pwXtEi8HYa6ylJ1qXsvSCotUkY6/QcCjYlzJonBVznZkIiex3K1YJ44EwYWqDnW8Nn7ET6i8m/BVDzVpbdNr4I+EfLGUJvKpwi3/q5LkqWWBpBZQs+3GVQfrlbeoDHwz9kpkZfb/Cx5d8KIb6DHNL2Wf2LA==~1`
+
+      const options = {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json, text/plain, */*',
+          'referer': 'https://www.moneycontrol.com/',
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
+          'x-requested-with': 'XMLHttpRequest',
+          'cookie': cookies,
+        },
+      };
+
+      try {
+        const response = await fetch(detailsUrl, options);
+        const data = await response.json();
+        displayStockDetails(data);
+      } catch (error) {
+        console.error('Error fetching stock details:', error);
+      }
+    }
+
+    function displayStockDetails(stockData) {
+      const detailsDiv = document.getElementById('stock-details');
+      const contentDiv = document.getElementById('details-content');
+
+      if (stockData && stockData.data && stockData.data.length > 0) {
+        const details = stockData.data[0];
+        contentDiv.innerHTML = `
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <th style="padding: 10px; background-color: #007bff; color: #fff; text-align: left; border: 1px solid #ddd;">Property</th>
+          <th style="padding: 10px; background-color: #007bff; color: #fff; text-align: left; border: 1px solid #ddd;">Value</th>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;">Company Name</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${details.companyName || 'N/A'}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;">Last Price</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${details.lastPrice || 'N/A'}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;">Percentage Change</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${details.perChange || 'N/A'}%</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;">Market Cap</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${details.marketCap || 'N/A'} Cr</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;">P/E Ratio (TTM)</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${details.scTtm || 'N/A'}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;">1 Year Performance</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${details.perform1yr || 'N/A'}%</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px; border: 1px solid #ddd;">Price to Book Value</td>
+          <td style="padding: 8px; border: 1px solid #ddd;">${details.priceBook || 'N/A'}</td>
+        </tr>
+      </table>
+    `;
+        detailsDiv.style.display = 'block';
+      } else {
+        contentDiv.innerHTML = 'No details available.';
+        detailsDiv.style.display = 'block';
+      }
+    }
+
+    document.addEventListener('click', function (e) {
+      const suggestionsDiv = document.getElementById('suggestions');
+      if (e.target.id !== 'enterhere') {
+        suggestionsDiv.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+
+</html>
