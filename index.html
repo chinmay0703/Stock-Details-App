@@ -4,15 +4,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="./input.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
   <title>Stock Suggestions and Details</title>
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f4f4f4;
-      padding: 10px;
-      color: #333;
-    }
-
     h1 {
       text-align: center;
     }
@@ -53,27 +48,7 @@
       background-color: #f0f0f0;
     }
 
-    .details-box {
-      margin-top: 20px;
-      padding: 20px;
-      border: 1px solid #ddd;
-      width: 80%;
-      max-width: 300px;
-      background-color: #ffffff;
-      border-radius: 5px;
-      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-    }
 
-    #enterhere {
-      width: 100%;
-      padding: 12px;
-      margin-top: 8px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.1);
-      outline: none;
-      transition: border-color 0.3s;
-    }
 
     #enterhere:focus {
       border-color: #007bff;
@@ -109,18 +84,22 @@
   </style>
 </head>
 
-<body>
-  <h1>Stock Suggestions and Details </h1>
-  <div style="position: relative;">
-    <label>Enter Stock Name Here</label><br>
-    <div style="height: 10px;"></div>
+<body class="font-sans bg-gray-50 p-4 text-gray-800">
+  <h1 class="text-center text-4xl font-bold mb-6 mt-10">Stock Suggestions and Details</h1>
+
+  <div class="relative max-w-md mx-auto mt-10">
+    <label class="block font-bold text-lg mb-2">Enter Stock Name Here</label>
     <input id="enterhere" type="text" placeholder="Enter stock keyword" onkeyup="getStockSuggestions()"
-      style="width: 300px; padding: 8px;">
-    <div id="suggestions" class="suggestions" style="display: none;"></div>
+      class="w-full p-3 border border-gray-300 rounded shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500" />
+    <div id="suggestions"
+      class="suggestions absolute z-10 left-0 right-0 bg-white shadow-lg border border-gray-200 rounded mt-2"
+      style="display: none;">
+    </div>
   </div>
 
-  <div id="stock-details" class="details-box" style="display: none;">
-    <h3>Stock Details</h3>
+  <div id="stock-details"
+    class="details-box hidden mt-8 p-6 border border-gray-300 bg-white rounded-lg shadow-md max-w-md mx-auto">
+    <h3 class="text-xl font-semibold text-blue-600 mb-4">Stock Details</h3>
     <div id="details-content"></div>
   </div>
 
@@ -225,39 +204,43 @@
       if (stockData && stockData.data && stockData.data.length > 0) {
         const details = stockData.data[0];
         contentDiv.innerHTML = `
-      <table style="width: 100%; border-collapse: collapse;">
-        <tr>
-          <th style="padding: 10px; background-color: #007bff; color: #fff; text-align: left; border: 1px solid #ddd;">Property</th>
-          <th style="padding: 10px; background-color: #007bff; color: #fff; text-align: left; border: 1px solid #ddd;">Value</th>
-        </tr>
-        <tr>
-          <td style="padding: 8px; border: 1px solid #ddd;">Company Name</td>
-          <td style="padding: 8px; border: 1px solid #ddd;">${details.companyName || 'N/A'}</td>
-        </tr>
-        <tr>
-          <td style="padding: 8px; border: 1px solid #ddd;">Last Price</td>
-          <td style="padding: 8px; border: 1px solid #ddd;">${details.lastPrice || 'N/A'}</td>
-        </tr>
-        <tr>
-          <td style="padding: 8px; border: 1px solid #ddd;">Percentage Change</td>
-          <td style="padding: 8px; border: 1px solid #ddd;">${details.perChange || 'N/A'}%</td>
-        </tr>
-        <tr>
-          <td style="padding: 8px; border: 1px solid #ddd;">Market Cap</td>
-          <td style="padding: 8px; border: 1px solid #ddd;">${details.marketCap || 'N/A'} Cr</td>
-        </tr>
-        <tr>
-          <td style="padding: 8px; border: 1px solid #ddd;">P/E Ratio (TTM)</td>
-          <td style="padding: 8px; border: 1px solid #ddd;">${details.scTtm || 'N/A'}</td>
-        </tr>
-        <tr>
-          <td style="padding: 8px; border: 1px solid #ddd;">1 Year Performance</td>
-          <td style="padding: 8px; border: 1px solid #ddd;">${details.perform1yr || 'N/A'}%</td>
-        </tr>
-        <tr>
-          <td style="padding: 8px; border: 1px solid #ddd;">Price to Book Value</td>
-          <td style="padding: 8px; border: 1px solid #ddd;">${details.priceBook || 'N/A'}</td>
-        </tr>
+      <table class="w-full border-collapse">
+        <thead>
+          <tr>
+            <th class="p-2 bg-blue-600 text-white text-left border border-gray-300">Property</th>
+            <th class="p-2 bg-blue-600 text-white text-left border border-gray-300">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="p-2 border border-gray-300">Company Name</td>
+            <td class="p-2 border border-gray-300">${details.companyName || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td class="p-2 border border-gray-300">Last Price</td>
+            <td class="p-2 border border-gray-300">${details.lastPrice || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td class="p-2 border border-gray-300">Percentage Change</td>
+            <td class="p-2 border border-gray-300">${details.perChange || 'N/A'}%</td>
+          </tr>
+          <tr>
+            <td class="p-2 border border-gray-300">Market Cap</td>
+            <td class="p-2 border border-gray-300">${details.marketCap || 'N/A'} Cr</td>
+          </tr>
+          <tr>
+            <td class="p-2 border border-gray-300">P/E Ratio (TTM)</td>
+            <td class="p-2 border border-gray-300">${details.scTtm || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td class="p-2 border border-gray-300">1 Year Performance</td>
+            <td class="p-2 border border-gray-300">${details.perform1yr || 'N/A'}%</td>
+          </tr>
+          <tr>
+            <td class="p-2 border border-gray-300">Price to Book Value</td>
+            <td class="p-2 border border-gray-300">${details.priceBook || 'N/A'}</td>
+          </tr>
+        </tbody>
       </table>
     `;
         detailsDiv.style.display = 'block';
